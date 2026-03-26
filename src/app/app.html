@@ -1,0 +1,146 @@
+<div [ngClass]="modoOscuro ? 'dark' : 'light'" class="container">
+  <div class="space-layer deep-space"></div>
+  <div class="space-layer nebula-field"></div>
+  <div class="space-layer starfield-near"></div>
+  <div class="space-layer starfield-mid"></div>
+  <div class="space-layer starfield-far"></div>
+  <div class="space-layer galactic-glow"></div>
+  <div class="comet comet-a"></div>
+  <div class="comet comet-b"></div>
+  <div class="comet comet-c"></div>
+  <div class="ship-wrap">
+    <div class="ship">
+      <span class="ship-cabin"></span>
+      <span class="ship-engine"></span>
+    </div>
+  </div>
+
+  <section *ngIf="!juegoGanado" class="mini-game" [class.game-win]="desbloqueandoGafete">
+    <header class="game-header">
+      <p class="game-title">Operacion Nebula</p>
+      <div class="game-stats">
+        <p>Puntos: {{ puntaje }}/{{ objetivoPuntos }}</p>
+        <p>Tiempo: {{ tiempoRestante }}s</p>
+        <p>Estado: {{ estadoJuego }}</p>
+      </div>
+      <p class="game-progress">{{ mensajeJuego }}</p>
+    </header>
+
+    <div class="game-arena" (mousemove)="moverNave($event)" (click)="dispararEnPosicion($event)">
+      <div *ngFor="let enemigo of enemigos" class="enemy-ship" [style.left.%]="enemigo.x" [style.top.%]="enemigo.y"></div>
+      <div *ngFor="let laser of lasers" class="laser-shot" [style.left.%]="laser.x" [style.top.%]="laser.y"></div>
+
+      <div class="player-ship" [style.left.%]="playerX">
+        <span class="player-cabin"></span>
+        <span class="player-flame"></span>
+      </div>
+    </div>
+
+    <footer class="game-footer">
+      <button *ngIf="estadoJuego === 'idle'" class="game-btn" (click)="iniciarJuego()">Iniciar mision</button>
+      <button *ngIf="estadoJuego === 'playing'" class="game-btn" (click)="disparar()">Disparar</button>
+      <button *ngIf="estadoJuego === 'lost'" class="game-btn" (click)="reiniciarJuego()">Reintentar</button>
+      <button *ngIf="estadoJuego === 'won'" class="game-btn" (click)="reiniciarJuego()">Jugar otra vez</button>
+    </footer>
+
+    <div *ngIf="desbloqueandoGafete" class="unlock-transition">
+      <div class="unlock-ring ring-a"></div>
+      <div class="unlock-ring ring-b"></div>
+      <p>Desbloqueando gafete...</p>
+    </div>
+  </section>
+
+  <section
+    *ngIf="juegoGanado"
+    class="gafete-shell"
+    [class.badge-unlock]="juegoGanado"
+    [class.dragging]="isDragging"
+    [style.--pull-y.px]="pullY"
+    [style.--pull-x.px]="pullX"
+  >
+    <div class="lanyard"></div>
+
+    <div class="badge-body" (pointerdown)="iniciarEstiron($event)">
+      <div class="clip"></div>
+      <div class="connector"></div>
+
+      <article class="card" [style.transform]="cardTransform" (mousemove)="onCardMove($event)" (mouseleave)="resetCardTilt()">
+        <div class="slot"></div>
+        <div class="issuer-strip">
+          <span>EVENT PASS</span>
+          <span>ID 2026-019</span>
+        </div>
+
+        <header class="card-header">
+          <div class="status">
+            <span class="dot"></span>
+            Disponible para practicas y proyectos freelance
+          </div>
+          <button class="ghost-btn" (click)="toggleModo()">
+            {{ modoOscuro ? 'Modo claro' : 'Modo oscuro' }}
+          </button>
+        </header>
+
+        <div class="perfil">
+          <img src="foto.jpg" alt="Foto de perfil" class="foto">
+          <div>
+            <h1>{{ nombre }}</h1>
+            <p class="rol">{{ rol }}</p>
+          </div>
+        </div>
+
+        <p class="frase">"{{ frase }}"</p>
+
+        <section class="metricas">
+          <article *ngFor="let metrica of metricas" class="metrica">
+            <h3>{{ metrica.valor }}</h3>
+            <p>{{ metrica.etiqueta }}</p>
+          </article>
+        </section>
+
+        <div class="skills">
+          <span *ngFor="let skill of habilidades">{{ skill }}</span>
+        </div>
+
+        <section class="tabs">
+          <button [class.active]="panelActivo === 'sobre-mi'" (click)="cambiarPanel('sobre-mi')">Sobre mi</button>
+          <button [class.active]="panelActivo === 'proyectos'" (click)="cambiarPanel('proyectos')">Proyectos</button>
+          <button [class.active]="panelActivo === 'contacto'" (click)="cambiarPanel('contacto')">Contacto</button>
+        </section>
+
+        <section class="panel" [ngSwitch]="panelActivo">
+          <div *ngSwitchCase="'sobre-mi'" class="panel-item">
+            <p>Estudiante de Analisis de sistemas empresariales con enfoque en interfaces limpias y experiencias rapidas.</p>
+            <button class="line-btn" (click)="toggleInfo()">{{ mostrarInfo ? 'Ocultar detalles' : 'Ver mas detalles' }}</button>
+          </div>
+
+          <div *ngSwitchCase="'proyectos'" class="panel-item">
+            <h4>Sistema Web CRUD</h4>
+            <p>Plataforma de gestion con Angular, Java y MySQL en AWS RDS, optimizada para operaciones administrativas.</p>
+          </div>
+
+          <div *ngSwitchCase="'contacto'" class="panel-item">
+            <p>Lima, Peru</p>
+            <p>hugo.fernandez@vallegrande.edu.pe</p>
+            <button class="line-btn" (click)="copiarEmail()">Copiar email</button>
+          </div>
+        </section>
+
+        <div class="botones">
+          <button (click)="cambiarFrase()">Nueva frase</button>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/hugo-adrian-fernandez-audante-b08658360" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+
+        <div *ngIf="mostrarInfo" class="extra">
+          <h3>Formacion</h3>
+          <p>Instituto Valle Grande</p>
+          <h3>Interes actual</h3>
+          <p>Frontends interactivos con Angular y arquitectura limpia.</p>
+        </div>
+
+        <p *ngIf="copiado" class="toast">Email copiado al portapapeles.</p>
+      </article>
+    </div>
+  </section>
+</div>
